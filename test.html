@@ -1,0 +1,188 @@
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/template.xhtml">
+  <ui:define name="title">CRM TABLE</ui:define>
+
+  <ui:define name="viewname">CRM TABLE</ui:define>
+
+  <ui:define name="content">
+    <style>
+      .ui-editable-column .ui-cell-editor-input {
+        overflow: hidden;
+      }
+
+      .ui-editable-column .ui-cell-editor-input * {
+        box-sizing: border-box;
+      }
+    </style>
+
+    <h:form id="form">
+      <div class="p-grid crud-demo">
+        <div class="p-col-12">
+          <div class="card">
+            <p:growl id="messages" showDetail="true" />
+            <p:toolbar styleClass="p-mb-4">
+              <p:toolbarGroup> </p:toolbarGroup>
+
+              <p:toolbarGroup name="right">
+                <p:fileUpload
+                  mode="simple"
+                  skinSimple="true"
+                  label="Import"
+                  chooseIcon="pi pi-download" />
+                <p:commandButton
+                  value="Export"
+                  icon="pi pi-upload"
+                  styleClass="ui-button-help"
+                  ajax="false">
+                  <p:dataExporter
+                    type="pdf"
+                    target="dt-products"
+                    fileName="products" />
+                </p:commandButton>
+              </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dataTable
+              var="customer"
+              value="#{dtFilterView.customers1}"
+              widgetVar="customersTable"
+              emptyMessage="No customers found with given criteria"
+              filteredValue="#{dtFilterView.filteredCustomers1}"
+              globalFilterOnly="#{dtFilterView.globalFilterOnly}"
+              editable="true"
+              editInitEvent="dblclick"
+              editMode="cell">
+              <p:column
+                headerText="Company Name"
+                filterBy="#{customer.name}"
+                filterMatchMode="contains">
+                <h:outputText value="#{customer.name}" />
+                <f:facet name="filter">
+                  <p:inputText
+                    id="myFilter"
+                    onkeyup="PF('customersTable').filter()"
+                    style="width: 10rem"
+                    placeholder="Enter keyword" />
+                </f:facet>
+              </p:column>
+
+              <p:column
+                headerText="Product Name"
+                filterBy="#{customer.country.code}"
+                filterMatchMode="contains">
+                <h:outputText value="#{customer.country.code}" />
+                <f:facet name="filter">
+                  <p:inputText
+                    id="productFilter"
+                    onkeyup="PF('customersTable').filter()"
+                    style="width: 10rem"
+                    placeholder="Enter keyword" />
+                </f:facet>
+              </p:column>
+
+              <p:column
+                headerText="Location"
+                filterBy="#{customer.country.name}">
+                <h:outputText
+                  style="vertical-align: middle; margin-left: 0.5rem"
+                  value="#{customer.country.name}" />
+                <f:facet name="filter">
+                  <p:inputText
+                    onkeyup="PF('customersTable').filter()"
+                    style="width: 10rem"
+                    placeholder="Enter keyword" />
+                </f:facet>
+              </p:column>
+
+              <p:column
+                headerText="Recent Communication"
+                filterBy="#{customer.representative.name}">
+                <p:cellEditor>
+                  <f:facet name="output"
+                    ><h:outputText value="#{customer.representative.name}"
+                  /></f:facet>
+                  <f:facet name="input">
+                    <p:selectOneMenu
+                      id="recentCommunication"
+                      value="#{customer.representative.name}"
+                      style="width: 100%">
+                      <f:selectItem itemLabel="Email" itemValue="Email" />
+                      <f:selectItem itemLabel="Phone" itemValue="Phone" />
+                      <f:selectItem itemLabel="Meeting" itemValue="Meeting" />
+                      <f:selectItem
+                        itemLabel="Social Media"
+                        itemValue="Social Media" />
+                    </p:selectOneMenu>
+                  </f:facet>
+                </p:cellEditor>
+                <f:facet name="filter">
+                  <p:selectOneMenu
+                    onchange="PF('customersTable').filter()"
+                    style="width: 100%">
+                    <f:selectItem
+                      itemLabel="All"
+                      itemValue=""
+                      noSelectionOption="true" />
+                    <f:selectItem itemLabel="Email" itemValue="Email" />
+                    <f:selectItem itemLabel="Phone" itemValue="Phone" />
+                    <f:selectItem itemLabel="Meeting" itemValue="Meeting" />
+                    <f:selectItem
+                      itemLabel="Social Media"
+                      itemValue="Social Media" />
+                  </p:selectOneMenu>
+                </f:facet>
+              </p:column>
+
+              <p:rowExpansion>
+                <div class="orders-subtable">
+                  <h5>Orders for #{product.name}</h5>
+                  <p:dataTable
+                    var="order"
+                    value="#{product.orders}"
+                    reflow="true"
+                    editable="true"
+                    editInitEvent="dblclick"
+                    editMode="cell">
+                    <p:column headerText="Id" sortBy="#{order.id}">
+                      <h:outputText value="#{order.id}" />
+                    </p:column>
+
+                    <p:column headerText="Customer" sortBy="#{order.customer}">
+                      <h:outputText value="#{order.customer}" />
+                    </p:column>
+
+                    <p:column headerText="Date" sortBy="#{order.date}">
+                      <h:outputText value="#{order.date}" />
+                    </p:column>
+
+                    <p:column headerText="Amount" sortBy="#{order.amount}">
+                      <h:outputText value="#{order.amount}">
+                        <f:convertNumber currencySymbol="$" type="currency" />
+                      </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Status" sortBy="#{order.status}">
+                      <span
+                        class="order-badge order-#{order.status.name().toLowerCase()}"
+                        >#{order.status}</span
+                      >
+                    </p:column>
+
+                    <p:column style="width: 3.5rem">
+                      <p:commandButton icon="pi pi-search" />
+                    </p:column>
+                  </p:dataTable>
+                </div>
+              </p:rowExpansion>
+            </p:dataTable>
+          </div>
+        </div>
+      </div>
+    </h:form>
+  </ui:define>
+</ui:composition>
